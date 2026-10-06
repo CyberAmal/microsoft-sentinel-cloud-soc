@@ -1,0 +1,76 @@
+SOC INVESTIGATION 01
+Repeated Windows Failed Logons
+
+INVESTIGATION TYPE
+Controlled Security Test
+
+DATA SOURCE
+Windows Security Events
+
+PRIMARY EVENT
+Event ID 4625 - An account failed to log on
+
+RELATED EVENT
+Event ID 4624 - An account was successfully logged on
+
+DETECTION
+A custom Microsoft Sentinel scheduled analytics rule was configured to detect five or more failed authentication events associated with the same account and endpoint within a 10-minute period.
+
+RULE SEVERITY
+Medium
+
+QUERY FREQUENCY
+5 minutes
+
+LOOKUP PERIOD
+10 minutes
+
+ACTIVITY
+Controlled failed Windows authentication attempts were generated against the monitored Windows 11 endpoint.
+
+Windows Security Event ID 4625 recorded the failed authentication activity.
+
+The events were collected through Azure Monitor Agent and forwarded to the Log Analytics workspace used by Microsoft Sentinel.
+
+INVESTIGATION
+KQL was used to investigate the failed authentication events and review available information including timestamps, account, endpoint, logon information and source details.
+
+Failed Event ID 4625 activity was also correlated with Event ID 4624 successful authentication activity to establish an authentication timeline.
+
+DETECTION RESULT
+The configured threshold was reached and the custom Microsoft Sentinel analytics rule successfully generated a security alert and incident.
+
+The incident was reviewed through the Microsoft Defender portal.
+
+MITRE ATT&CK
+T1110 - Brute Force
+
+FINDINGS
+- Repeated failed authentication activity was successfully captured.
+- Event ID 4625 telemetry was available for investigation in Microsoft Sentinel.
+- KQL successfully correlated the authentication events.
+- The custom analytics rule detected the configured failure threshold.
+- Microsoft Sentinel generated the expected alert and incident.
+- Related authentication activity was reviewed for additional context.
+- The observed activity matched the controlled test.
+- No evidence of unauthorised access or system compromise was identified.
+
+SECURITY CONTROL VALIDATED
+Windows Security Event
+→ Azure Monitor Agent
+→ Log Analytics
+→ Microsoft Sentinel
+→ KQL Correlation
+→ Analytics Rule
+→ Alert
+→ Incident
+→ Analyst Investigation
+
+VERDICT
+True Positive - Controlled Security Test
+
+IMPACT
+No Compromise Identified
+
+CONCLUSION
+Detection Validated Successfully
