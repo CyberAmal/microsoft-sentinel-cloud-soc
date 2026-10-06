@@ -108,7 +108,7 @@ The following query was used:
 
 ```kusto
 SecurityEvent
-| where TimeGenerated > ago(1h)
+| where TimeGenerated > ago(2h)
 | where EventID in (4624, 4625)
 | project
     TimeGenerated,
