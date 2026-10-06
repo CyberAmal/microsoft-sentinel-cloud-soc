@@ -1,29 +1,31 @@
 # Microsoft Sentinel Cloud SOC & Threat Detection Lab
 
-A hands-on cloud SOC project built using **Microsoft Sentinel, Azure Log Analytics, Azure Monitor Agent, Azure Arc, Windows Security Events, and KQL**.
+A hands-on cloud SOC project built to develop practical experience with **Microsoft Sentinel, Azure Log Analytics, KQL, detection engineering, security monitoring, and incident investigation**.
 
-The project demonstrates the process of collecting endpoint security telemetry, analysing security events, developing custom detection logic, generating Sentinel incidents, and performing structured SOC investigations.
+The lab integrates a Windows endpoint hosted outside Azure with Microsoft Sentinel using **Azure Arc** and **Azure Monitor Agent (AMA)**, allowing Windows security telemetry to be collected, analysed, correlated, and converted into actionable security incidents.
 
-> **Status:** 🟡 In Progress
+The project focuses on the complete SOC workflow:
+
+**Telemetry → Analysis → Detection → Alert → Incident → Investigation → Documentation**
+
+> **Project Status:** 🟡 In Progress
 
 ---
 
-## Project Objectives
+# Project Objectives
 
-The objectives of this lab are to develop practical experience with:
+The primary objectives of this project are to:
 
-- Microsoft Sentinel SIEM
-- Azure Log Analytics
-- Azure Monitor Agent (AMA)
-- Azure Arc
-- Windows Security Event monitoring
-- Kusto Query Language (KQL)
-- Security alert triage
-- Detection engineering
-- Sentinel Analytics Rules
-- Incident investigation
-- MITRE ATT&CK mapping
-- Security investigation documentation
+- Deploy and configure Microsoft Sentinel
+- Integrate an external Windows endpoint with Azure
+- Collect Windows Security Events using Azure Monitor Agent
+- Analyse security telemetry using KQL
+- Develop custom Sentinel Analytics Rules
+- Generate controlled security activity
+- Investigate alerts and incidents
+- Correlate authentication and endpoint telemetry
+- Apply MITRE ATT&CK where supported by observed activity
+- Document investigations using a structured SOC workflow
 
 ---
 
@@ -32,14 +34,14 @@ The objectives of this lab are to develop practical experience with:
 ```mermaid
 flowchart LR
 
-    WIN["Windows 11 Endpoint<br/>Proxmox VM"]
+    WIN["Windows 11 Endpoint<br/>Proxmox"]
     ARC["Azure Arc"]
     AMA["Azure Monitor Agent"]
-    DCR["Data Collection Rule<br/>Windows Security Events"]
-    LAW["Azure Log Analytics<br/>Workspace"]
+    DCR["Data Collection Rule"]
+    LAW["Log Analytics Workspace"]
     SENTINEL["Microsoft Sentinel"]
     KQL["KQL Analysis"]
-    RULE["Scheduled Analytics Rules"]
+    RULES["Analytics Rules"]
     ALERT["Security Alert"]
     DEFENDER["Microsoft Defender<br/>Incident Investigation"]
 
@@ -48,60 +50,35 @@ flowchart LR
     AMA --> DCR
     DCR --> LAW
     LAW --> SENTINEL
-
     SENTINEL --> KQL
-    KQL --> RULE
-    RULE --> ALERT
+    KQL --> RULES
+    RULES --> ALERT
     ALERT --> DEFENDER
 ```
 
 ---
 
-# Detection & Investigation Workflow
+# Technology Stack
 
-The project follows a structured SOC workflow:
-
-```mermaid
-flowchart LR
-
-    A["Generate Controlled<br/>Security Activity"]
-    B["Collect Security<br/>Telemetry"]
-    C["Analyse Events<br/>with KQL"]
-    D["Apply Detection<br/>Logic"]
-    E["Generate Alert<br/>& Incident"]
-    F["Investigate<br/>Activity"]
-    G["MITRE ATT&CK<br/>Mapping"]
-    H["Document<br/>Findings"]
-
-    A --> B --> C --> D --> E --> F --> G --> H
-```
-
-This approach ensures the project demonstrates more than simple log collection.
-
-The objective is to validate the complete process from **security telemetry to analyst investigation**.
-
----
-
-# Environment
-
-| Component | Purpose |
+| Technology | Purpose |
 |---|---|
-| **Microsoft Sentinel** | SIEM, detection and incident management |
-| **Azure Log Analytics** | Centralised security log storage and querying |
-| **Azure Monitor Agent** | Endpoint telemetry collection |
-| **Azure Arc** | Integration of the on-premises Windows VM with Azure |
+| **Microsoft Sentinel** | SIEM, detection and security incident management |
+| **Azure Log Analytics** | Centralised security telemetry and querying |
+| **KQL** | Security-event analysis and detection logic |
+| **Azure Monitor Agent** | Windows security telemetry collection |
+| **Azure Arc** | Integration of the non-Azure Windows endpoint |
+| **Data Collection Rules** | Control of Windows Security Event collection |
+| **Microsoft Defender Portal** | Unified alert and incident investigation |
 | **Windows 11** | Monitored endpoint |
-| **KQL** | Security-event analysis and detection queries |
-| **Microsoft Defender Portal** | Unified incident investigation interface |
-| **Proxmox** | Virtualisation platform hosting the Windows endpoint |
+| **Proxmox** | Virtualisation platform hosting the endpoint |
 
 ---
 
-# Data Collection
+# SOC Data Pipeline
 
-A Windows 11 virtual machine hosted in the local Proxmox environment was onboarded to **Azure Arc**.
+The Windows 11 endpoint is hosted within the local Proxmox environment and onboarded to Azure using Azure Arc.
 
-Windows Security Events are collected through **Azure Monitor Agent** using a **Data Collection Rule (DCR)** and forwarded to the Azure Log Analytics workspace used by Microsoft Sentinel.
+Windows Security Events are collected using Azure Monitor Agent and a Data Collection Rule before being forwarded to the Log Analytics workspace used by Microsoft Sentinel.
 
 ```text
 Windows Security Events
@@ -113,78 +90,62 @@ Data Collection Rule
 Log Analytics
         ↓
 Microsoft Sentinel
-```
-
-KQL queries are then used to analyse and correlate the collected telemetry.
-
----
-
-# Custom Detection Engineering
-
-Microsoft Sentinel scheduled analytics rules are used to transform raw security telemetry into actionable detections.
-
-The first custom detection monitors repeated Windows authentication failures.
-
-### Repeated Windows Failed Logons
-
-**Event:** Windows Security Event ID `4625`
-
-**Detection condition:**
-
-> Five or more failed Windows authentication events within a 10-minute period.
-
-The detection workflow is:
-
-```text
-Event ID 4625
-      ↓
-KQL Correlation
-      ↓
-Scheduled Analytics Rule
-      ↓
-Sentinel Alert
-      ↓
-Security Incident
-      ↓
+        ↓
+KQL Analysis
+        ↓
+Analytics Rules
+        ↓
+Alerts & Incidents
+        ↓
 Analyst Investigation
 ```
 
+This provides a practical hybrid monitoring architecture where an endpoint outside Azure can be monitored through a cloud SIEM.
+
 ---
 
-# SOC Investigations
+# Implementation
 
-## 01 — Repeated Windows Failed Logons
+## Azure Log Analytics
 
-Controlled Windows authentication failures were generated against the monitored endpoint.
+A dedicated Log Analytics workspace was deployed as the central telemetry repository for the project.
 
-Windows Security Event ID **4625** captured the authentication failures and the events were analysed using KQL.
+A daily ingestion cap was configured to control data consumption within the lab environment.
 
-A custom Microsoft Sentinel analytics rule correlated repeated authentication failures and successfully generated an alert and incident for investigation.
+## Microsoft Sentinel
 
-The investigation included:
+Microsoft Sentinel was enabled on the Log Analytics workspace to provide:
 
-- Windows failed-logon analysis
-- Event ID 4625 investigation
-- KQL event correlation
-- Custom Sentinel detection logic
-- Alert and incident generation
-- Authentication timeline analysis
-- MITRE ATT&CK mapping
-- Analyst verdict and documentation
+- Security monitoring
+- KQL-based analysis
+- Analytics rules
+- Alert generation
+- Incident management
+- Investigation workflows
 
-**MITRE ATT&CK:** `T1110 — Brute Force`
+## Azure Arc
 
-**Verdict:** `True Positive — Controlled Security Test`
+The Windows 11 endpoint hosted on Proxmox was onboarded using Azure Arc.
 
-> Detailed investigation documentation will be available under `investigations/01-windows-failed-logons/`.
+This allowed the non-Azure endpoint to be managed as an Azure-connected machine and integrated with Azure Monitor.
+
+## Azure Monitor Agent
+
+Azure Monitor Agent was deployed to collect security telemetry from the Arc-enabled Windows endpoint.
+
+## Data Collection Rule
+
+A Data Collection Rule was configured to collect Windows Security Events and forward them to the Log Analytics workspace.
+
+The **Common** Windows Security Event collection profile was selected to provide useful security telemetry while controlling unnecessary ingestion.
 
 ---
 
 # KQL Analysis
 
-KQL is used throughout the project to investigate Windows security telemetry and develop detection logic.
+Kusto Query Language is used throughout the project to investigate and correlate security events.
 
-Example investigation query:
+Example query for investigating failed Windows authentication:
 
 ```kusto
 SecurityEvent
@@ -200,7 +161,9 @@ SecurityEvent
 | order by TimeGenerated desc
 ```
 
-Repeated authentication failures can then be correlated:
+KQL is also used to transform individual events into correlated security activity.
+
+Example:
 
 ```kusto
 SecurityEvent
@@ -215,70 +178,185 @@ SecurityEvent
 
 ---
 
+# Detection Engineering
+
+Custom Microsoft Sentinel scheduled analytics rules are developed to identify suspicious patterns within collected telemetry.
+
+The first custom detection identifies repeated Windows authentication failures.
+
+### Repeated Windows Failed Logons
+
+**Source Event:** Windows Security Event ID `4625`
+
+**Detection Logic:** Five or more failed authentication events associated with the same account and endpoint within a 10-minute period.
+
+**Severity:** Medium
+
+The detection was validated through controlled authentication failures and successfully generated a security alert and incident.
+
+---
+
+# SOC Investigations
+
+Each investigation contains separate documentation, KQL evidence, screenshots, findings, MITRE ATT&CK mapping where appropriate, and an analyst verdict.
+
+## 01 — Repeated Windows Failed Logons ✅
+
+Controlled repeated Windows authentication failures were generated against the monitored endpoint.
+
+Event ID `4625` telemetry was analysed using KQL and correlated through a custom Microsoft Sentinel scheduled analytics rule.
+
+The configured detection threshold was successfully reached, generating an alert and incident for investigation through the Microsoft Defender portal.
+
+**MITRE ATT&CK:** `T1110 — Brute Force`
+
+**Verdict:** `True Positive — Controlled Security Test`
+
+[View Investigation](investigations/01-windows-failed-logons)
+
+---
+
+## 02 — Suspicious PowerShell Activity
+
+**Status:** Planned
+
+The next investigation will focus on PowerShell-related endpoint telemetry, KQL analysis, detection logic, and incident investigation.
+
+---
+
+## 03 — Account & Privilege Activity
+
+**Status:** Planned
+
+This investigation will focus on Windows account and privilege-related security telemetry and event correlation.
+
+---
+
+## 04 — Suspicious Network / Endpoint Activity
+
+**Status:** Planned
+
+This investigation will examine network or endpoint activity using available security telemetry and indicators.
+
+---
+
+## 05 — Advanced Sentinel Detection & Incident Investigation
+
+**Status:** Planned
+
+The final investigation will focus on additional custom detection engineering and a structured Sentinel incident investigation workflow.
+
+---
+
 # MITRE ATT&CK Mapping
 
-MITRE ATT&CK is applied only where the observed activity supports an appropriate technique mapping.
+MITRE ATT&CK is applied only where the observed activity supports an appropriate mapping.
 
 | Activity | Technique |
 |---|---|
 | Repeated Windows authentication failures | `T1110 — Brute Force` |
 
-Additional mappings will be added as further investigations are completed.
+Additional mappings will be added as investigations are completed.
 
 ---
 
 # Current Progress
 
-- [x] Azure resource group created
-- [x] Log Analytics workspace deployed
+- [x] Azure resource group deployed
+- [x] Log Analytics workspace configured
 - [x] Microsoft Sentinel enabled
-- [x] Log ingestion cost controls configured
-- [x] Windows 11 endpoint onboarded through Azure Arc
-- [x] Azure Monitor Agent configured
-- [x] Windows Security Events Data Collection Rule created
-- [x] Windows Security telemetry successfully ingested
-- [x] KQL queries validated
-- [x] Custom failed-logon detection created
-- [x] Sentinel alert and incident successfully generated
+- [x] Data ingestion limits configured
+- [x] Windows 11 endpoint onboarded using Azure Arc
+- [x] Azure Monitor Agent deployed
+- [x] Windows Security Event collection configured
+- [x] Security telemetry validated in Log Analytics
+- [x] Initial KQL analysis completed
+- [x] Custom Sentinel Analytics Rule created
+- [x] Alert and incident generation validated
 - [x] Investigation 01 — Repeated Windows Failed Logons
-- [ ] Additional endpoint investigation
-- [ ] Suspicious PowerShell investigation
-- [ ] Additional detection engineering
-- [ ] Final project documentation
+- [ ] Investigation 02 — Suspicious PowerShell Activity
+- [ ] Investigation 03 — Account & Privilege Activity
+- [ ] Investigation 04 — Suspicious Network / Endpoint Activity
+- [ ] Investigation 05 — Advanced Sentinel Detection & Incident Investigation
+- [ ] Final validation and documentation
 
 ---
 
-# Planned Investigations
+# Key Findings
 
-The next stages of the project will expand the SOC workflow across additional security scenarios.
+### 1. Telemetry Requires Detection Logic
 
-Planned areas include:
+Collecting Windows Security Events provides visibility, but individual events do not automatically represent actionable security incidents.
 
-- Suspicious PowerShell activity
-- Windows account and privilege activity
-- Additional endpoint security events
-- Custom Sentinel detections
-- Incident investigation and correlation
+KQL correlation and analytics rules are required to identify meaningful patterns within the telemetry.
 
-These investigations will be added only after the corresponding activity has been implemented and validated.
+### 2. Detection Thresholds Require Context
+
+A single failed authentication event does not represent a brute-force attempt.
+
+The first custom detection therefore correlates multiple Event ID `4625` events within a defined time window.
+
+### 3. Hybrid Endpoints Can Be Integrated with Cloud SIEM
+
+Azure Arc and Azure Monitor Agent enabled a Windows endpoint hosted outside Azure to forward security telemetry into the Microsoft cloud monitoring environment.
+
+### 4. Detection Must Be Validated
+
+Creating an analytics rule does not prove that it works.
+
+Controlled security activity was generated to verify the complete path from endpoint telemetry through KQL correlation to alert and incident generation.
 
 ---
 
-# Key Learning Areas
+# Challenges & Troubleshooting
 
-This project is designed to strengthen practical understanding of:
+Building the environment required troubleshooting across several areas, including:
 
-**Cloud SIEM → Endpoint Telemetry → KQL → Detection Engineering → Alert Triage → Incident Investigation**
+- Windows endpoint internet and DNS connectivity
+- Azure Arc onboarding
+- Azure Monitor Agent deployment
+- Data Collection Rule configuration
+- Windows Security Event ingestion
+- KQL query development
+- Analytics-rule thresholds
+- Scheduled detection timing
+- Alert and incident generation
 
-The project also demonstrates how an endpoint outside Azure can be integrated into a cloud-based SOC using **Azure Arc and Azure Monitor Agent**.
+Troubleshooting formed an important part of the project because each stage of the monitoring pipeline needed to be validated before progressing to detection and investigation.
+
+---
+
+# Security Validation & Cost Control
+
+The project was designed as a controlled security lab.
+
+Azure data-ingestion limits were configured before security telemetry collection began to reduce unnecessary resource consumption.
+
+Controlled security events are generated only against systems within the authorised lab environment.
+
+Detection thresholds and collection settings are adjusted based on the requirements of each investigation rather than enabling unnecessary telemetry.
+
+---
+
+# What I Learned
+
+This project strengthened my understanding of how Microsoft cloud security technologies can be combined to build a practical SOC monitoring workflow.
+
+The project demonstrates that effective security monitoring requires more than collecting logs.
+
+A complete workflow requires:
+
+**Collection → Analysis → Correlation → Detection → Alert → Investigation → Validation → Documentation**
+
+Working with Azure Arc, Azure Monitor Agent, Log Analytics, Microsoft Sentinel, KQL and the Microsoft Defender incident interface provided practical experience across both security monitoring infrastructure and analyst investigation workflows.
 
 ---
 
 # Ethical Use
 
-All security activity documented in this repository is generated within an **authorised lab environment** using systems under my control.
+All security testing documented in this repository is performed in an authorised lab environment against systems under my control.
 
-The project is intended solely for cybersecurity education, defensive security research, detection engineering, and professional skills development.
+The project is intended solely for cybersecurity education, defensive-security research, detection engineering, and professional skills development.
 
 ---
 
