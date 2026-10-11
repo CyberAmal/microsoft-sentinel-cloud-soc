@@ -25,16 +25,18 @@ The lab integrates a Windows 11 endpoint hosted on Proxmox VE with Microsoft Azu
 ## Lab Architecture
 
 ```mermaid
-#flowchart TD
-    subgraph HOME["On-Premises Lab"]
+flowchart TD
+   # subgraph
+ HOME["On-Premises Lab"]
         P["Proxmox VE"]
         W["Thor - Windows 11 VM"]
         LOG["Windows Security Events<br/>PowerShell Script Logs<br/>Microsoft Defender Events"]
         P --> W
         W --> LOG
-    #end
+    end
 
-    subgraph CLOUD["Microsoft Azure"]
+    #subgraph
+ CLOUD["Microsoft Azure"]
         ARC["Azure Arc"]
         AMA["Azure Monitor Agent"]
         DCR["Data Collection Rule"]
