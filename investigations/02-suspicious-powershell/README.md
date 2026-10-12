@@ -1,9 +1,9 @@
-# Investigation 02 — Suspicious PowerShell Activity
+# Investigation 02 - Suspicious PowerShell Activity
 
 **Project:** Microsoft Sentinel Cloud SOC & Threat Detection  
 **Endpoint:** Thor (Windows 11)  
 **Severity:** Medium  
-**MITRE ATT&CK:** T1059.001 — PowerShell
+**MITRE ATT&CK:** T1059.001 - PowerShell
 
 ## Overview
 
@@ -24,7 +24,7 @@ flowchart LR
 
 ## 1. Windows Event Log Analysis
 
-**Event ID:** 4104 — PowerShell Script Block Logging
+**Event ID:** 4104 - PowerShell Script Block Logging
 
 **KQL investigation query:**
 
