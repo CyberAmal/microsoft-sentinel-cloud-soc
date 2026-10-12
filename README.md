@@ -161,7 +161,7 @@ Each investigation involved event generation, log validation, KQL detection deve
 | 04 | Account Creation & Privilege Escalation | 4720, 4732 | Detected |
 | 05 | Suspicious Scheduled Task Persistence | 4698 | Detected |
 
-### 01 — Repeated Windows Failed Logons
+### 01 - Repeated Windows Failed Logons
 
 **MITRE ATT&CK:** `T1110 — Brute Force`
 
@@ -196,7 +196,7 @@ Event
 
 ---
 
-### 02 — Suspicious PowerShell Activity
+### 02 - Suspicious PowerShell Activity
 
 **MITRE ATT&CK:** `T1059.001 — PowerShell`
 
@@ -229,7 +229,7 @@ Event
 
 ---
 
-### 03 — Microsoft Defender Malware Detection
+### 03 - Microsoft Defender Malware Detection
 
 **Event IDs:** `1116`, `1117`
 
@@ -256,7 +256,7 @@ Event
 
 ---
 
-### 04 — Suspicious Account Creation & Privilege Escalation
+### 04 - Suspicious Account Creation & Privilege Escalation
 
 **MITRE ATT&CK:** `T1136.001 — Create Account: Local Account` | `T1098 — Account Manipulation`
 
@@ -307,7 +307,7 @@ Created
 
 ---
 
-### 05 — Suspicious Scheduled Task Persistence
+### 05 - Suspicious Scheduled Task Persistence
 
 **MITRE ATT&CK:** `T1053.005 — Scheduled Task`
 
