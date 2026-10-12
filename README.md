@@ -190,7 +190,7 @@ Event
 | project LastAttempt, Computer, FailedAttempts, FirstAttempt
 ```
 
-**Verdict:** `True Positive — Controlled Security Test`
+**Verdict:** `True Positive - Controlled Security Test`
 
 [View Investigation](investigations/01-windows-failed-logons)
 
@@ -198,7 +198,7 @@ Event
 
 ### 02 - Suspicious PowerShell Activity
 
-**MITRE ATT&CK:** `T1059.001 — PowerShell`
+**MITRE ATT&CK:** `T1059.001 - PowerShell`
 
 **Event ID:** `4104`
 
@@ -225,7 +225,7 @@ Event
 | project TimeGenerated, Computer, EventID, RenderedDescription
 ```
 
-**Verdict:** `True Positive — Controlled Security Test`
+**Verdict:** `True Positive - Controlled Security Test`
 
 ---
 
@@ -258,7 +258,7 @@ Event
 
 ### 04 - Suspicious Account Creation & Privilege Escalation
 
-**MITRE ATT&CK:** `T1136.001 — Create Account: Local Account` | `T1098 — Account Manipulation`
+**MITRE ATT&CK:** `T1136.001 - Create Account: Local Account` | `T1098 — Account Manipulation`
 
 **Event IDs:** `4720`, `4732`
 
@@ -301,7 +301,7 @@ Created
     PromotionTime
 ```
 
-**Verdict:** `True Positive — Controlled Security Test`
+**Verdict:** `True Positive - Controlled Security Test`
 
 **Detection Note:** The SID extraction method was validated in the lab. Production implementation would require field-specific parsing to ensure accurate account correlation.
 
@@ -309,7 +309,7 @@ Created
 
 ### 05 - Suspicious Scheduled Task Persistence
 
-**MITRE ATT&CK:** `T1053.005 — Scheduled Task`
+**MITRE ATT&CK:** `T1053.005 - Scheduled Task`
 
 **Event ID:** `4698`
 
@@ -336,7 +336,7 @@ Event
     RenderedDescription
 ```
 
-**Verdict:** `True Positive — Controlled Security Test`
+**Verdict:** `True Positive - Controlled Security Test`
 
 ---
 
