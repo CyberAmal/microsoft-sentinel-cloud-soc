@@ -1,4 +1,4 @@
-# Investigation 01 — Repeated Windows Failed Logons
+# Investigation 01 - Repeated Windows Failed Logons
 
 **Project:** Microsoft Sentinel Cloud SOC & Threat Detection  
 **Endpoint:** Thor (Windows 11)  
