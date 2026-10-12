@@ -20,7 +20,7 @@ The rule successfully generated a Medium-severity security alert, which was asso
 
 | Attribute | Details |
 |---|---|
-| Investigation | 01 — Repeated Windows Failed Logons |
+| Investigation | 01 - Repeated Windows Failed Logons |
 | Platform | Microsoft Sentinel |
 | Endpoint | Thor |
 | Operating System | Windows 11 |
