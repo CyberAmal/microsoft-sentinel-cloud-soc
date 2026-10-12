@@ -1,4 +1,4 @@
-# Investigation 04 — Suspicious Account Creation and Privilege Escalation
+# Investigation 04 - Suspicious Account Creation and Privilege Escalation
 
 **Project:** Microsoft Sentinel Cloud SOC Lab  
 **Endpoint:** Thor (Windows 11)  
