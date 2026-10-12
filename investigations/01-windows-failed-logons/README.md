@@ -24,7 +24,7 @@ flowchart LR
 
 ## 1. Windows Event Log Analysis
 
-**Event ID:** 4625 — An account failed to log on.
+**Event ID:** 4625 - An account failed to log on.
 
 **KQL investigation query:**
 
