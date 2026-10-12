@@ -1,9 +1,9 @@
-# Investigation 05 — Suspicious Scheduled Task Persistence
+# Investigation 05 - Suspicious Scheduled Task Persistence
 
 **Project:** Microsoft Sentinel Cloud SOC & Threat Detection  
 **Endpoint:** Thor (Windows 11)  
 **Severity:** Medium  
-**MITRE ATT&CK:** T1053.005 — Scheduled Task/Job: Scheduled Task
+**MITRE ATT&CK:** T1053.005 - Scheduled Task/Job: Scheduled Task
 
 ## Overview
 
@@ -23,7 +23,7 @@ flowchart LR
 
 ## 1. Windows Event Log Analysis
 
-**Event ID:** 4698 — A scheduled task was created.
+**Event ID:** 4698 - A scheduled task was created.
 
 The following KQL query was used to identify scheduled tasks containing selected PowerShell or lab indicators.
 
