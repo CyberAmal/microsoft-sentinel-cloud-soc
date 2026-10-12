@@ -3,7 +3,7 @@
 **Project:** Microsoft Sentinel Cloud SOC & Threat Detection  
 **Endpoint:** Thor (Windows 11)  
 **Severity:** Medium  
-**MITRE ATT&CK:** T1110 — Brute Force
+**MITRE ATT&CK:** T1110 - Brute Force
 
 ## Overview
 
