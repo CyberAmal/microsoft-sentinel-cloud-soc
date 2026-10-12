@@ -1,5 +1,5 @@
 
-# Investigation 01 — Repeated Windows Failed Logons
+# Investigation 01 - Repeated Windows Failed Logons
 
 ![Microsoft Sentinel](https://img.shields.io/badge/Microsoft-Sentinel-0078D4)
 ![Severity](https://img.shields.io/badge/Severity-Medium-orange)
@@ -169,7 +169,7 @@ Event
 | Host Identifier | HostName |
 | Host Value | Computer |
 
-### Evidence — Analytics Rule
+### Evidence - Analytics Rule
 
 ![Microsoft Sentinel Analytics Rule](screenshots/02-analytics-rule.png)
 
@@ -196,7 +196,7 @@ Microsoft Sentinel successfully generated a security alert from the scheduled an
 
 The alert's related events contained one aggregated result for Thor, showing six failed attempts and the first and last attempt timestamps.
 
-### Evidence — Security Alert
+### Evidence - Security Alert
 
 ![Repeated Windows Failed Logons Alert](screenshots/03-sentinel-alert.png)
 
@@ -224,7 +224,7 @@ The generated alerts were associated with an incident in the Microsoft Defender 
 
 Multiple alerts were displayed under the same incident.
 
-### Evidence — Incident
+### Evidence - Incident
 
 ![Microsoft Defender Incident](screenshots/04-sentinel-incident.png)
 
@@ -240,7 +240,7 @@ The analytics rule was configured to map the query's `Computer` field to a Host 
 
 The incident's Assets section displayed Thor as an affected device.
 
-### Evidence — Affected Device
+### Evidence - Affected Device
 
 ![Incident Assets Showing Thor](screenshots/05-incident-assets.png)
 
@@ -281,7 +281,7 @@ flowchart TD
 | Category | Mapping |
 |---|---|
 | Tactic | Credential Access |
-| Technique | T1110 — Brute Force |
+| Technique | T1110 - Brute Force |
 | Supporting Event | Windows Security Event ID 4625 |
 | Detection Indicator | Repeated failed authentication attempts |
 | Validation | Controlled lab simulation |
