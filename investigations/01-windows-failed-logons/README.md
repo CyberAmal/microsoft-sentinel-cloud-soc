@@ -1,191 +1,375 @@
+
 # Investigation 01 — Repeated Windows Failed Logons
 
-## Overview
+![Microsoft Sentinel](https://img.shields.io/badge/Microsoft-Sentinel-0078D4)
+![Severity](https://img.shields.io/badge/Severity-Medium-orange)
+![Status](https://img.shields.io/badge/Detection-Validated-success)
+![MITRE ATT&CK](https://img.shields.io/badge/MITRE_ATT%26CK-T1110-red)
 
-This investigation demonstrates the detection and analysis of repeated Windows authentication failures using **Microsoft Sentinel**.
+## 1. Overview
 
-Controlled failed authentication attempts were generated against a Windows 11 endpoint monitored through **Azure Arc** and **Azure Monitor Agent (AMA)**.
+This investigation demonstrates the detection and analysis of repeated Windows authentication failures using Microsoft Sentinel.
 
-Windows Security Event ID **4625** captured the failed authentication attempts. KQL was used to investigate and correlate the activity, and a custom Microsoft Sentinel scheduled analytics rule generated an alert and incident when the configured threshold was reached.
+A controlled authentication test was performed against a Windows 11 virtual machine named **Thor**, hosted in a Proxmox environment and connected to Microsoft Azure through Azure Arc.
+
+Windows Security Event ID **4625** was collected through Azure Monitor Agent (AMA), forwarded to a Log Analytics workspace, and analysed using a custom Microsoft Sentinel scheduled analytics rule.
+
+The rule successfully generated a Medium-severity security alert, which was associated with Microsoft Defender Incident **31 — Repeated Windows Failed Logons**.
+
+### Investigation Summary
+
+| Attribute | Details |
+|---|---|
+| Investigation | 01 — Repeated Windows Failed Logons |
+| Platform | Microsoft Sentinel |
+| Endpoint | Thor |
+| Operating System | Windows 11 |
+| Endpoint IP | 192.168.20.30 |
+| Infrastructure | Proxmox VE + Azure Arc |
+| Log Source | Windows Security Events |
+| Log Analytics Table | `Event` |
+| Event ID | 4625 |
+| Detection Type | Scheduled analytics rule |
+| Severity | Medium |
+| Detection Threshold | 5 or more failed logons within 10 minutes |
+| Observed Test Activity | 6 failed logons |
+| Incident | ID 31 — Repeated Windows Failed Logons |
+| MITRE ATT&CK | T1110 — Brute Force |
+| Validation | Alert and incident confirmed |
 
 ---
 
-## Investigation Objective
+## 2. Objective
 
-The objectives of this investigation were to:
+The objective was to build and validate a detection capable of identifying repeated Windows authentication failures.
 
-- Generate controlled Windows authentication failures
-- Verify Event ID 4625 ingestion into Microsoft Sentinel
-- Analyse failed authentication events using KQL
-- Correlate repeated authentication failures
-- Develop a custom Sentinel Analytics Rule
-- Generate and investigate a security incident
-- Review related successful and failed authentication activity
-- Map the observed behaviour to MITRE ATT&CK
-- Document an analyst verdict
+The investigation focused on:
+
+- Generating controlled failed authentication events.
+- Collecting Windows Security logs from an Azure Arc-enabled endpoint.
+- Writing a KQL detection query.
+- Configuring a scheduled analytics rule in Microsoft Sentinel.
+- Confirming security alert generation.
+- Validating incident creation and endpoint entity mapping.
+- Preserving investigation evidence for a SOC analyst portfolio.
 
 ---
 
-## Detection Logic
+## 3. Lab Architecture
 
-The detection monitors Windows Security Event ID:
+```mermaid
+flowchart TD
+    A["Test Workstation<br/>Controlled Incorrect SSH Passwords"]
+    B["Windows 11 VM: Thor<br/>192.168.20.30"]
+    C["Windows Security Event Log<br/>Event ID 4625"]
+    D["Azure Monitor Agent<br/>Data Collection Rule"]
+    E["Log Analytics Workspace<br/>law-sentinel-soc-lab"]
+    F["Microsoft Sentinel<br/>Scheduled Analytics Rule"]
+    G{"5 or More Failures<br/>Within 10 Minutes?"}
+    H["Security Alert<br/>Medium Severity"]
+    I["Microsoft Defender<br/>Incident 31"]
+    J["Entity Mapping<br/>Host: Thor"]
+    K["SOC Investigation<br/>Review and Validation"]
 
-**4625 — An account failed to log on**
-
-The custom Sentinel scheduled analytics rule identifies:
-
-> **Five or more failed authentication events associated with the same account and endpoint within a 10-minute period.**
-
-### Detection Query
-
-```kusto
-SecurityEvent
-| where EventID == 4625
-| summarize
-    FailedLogons = count(),
-    FirstAttempt = min(TimeGenerated),
-    LastAttempt = max(TimeGenerated)
-    by Account, Computer
-| where FailedLogons >= 5
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G -->|Yes| H
+    H --> I
+    I --> J
+    J --> K
 ```
 
-**Rule severity:** Medium  
-**Query frequency:** 5 minutes  
-**Lookup period:** 10 minutes
+The endpoint was hosted locally, while security monitoring and detection were performed through Microsoft Azure and Microsoft Sentinel.
 
 ---
 
-## Investigation
+## 4. Log Collection and Test Activity
 
-### 1. Failed Authentication Analysis
+### Test Scenario
 
-Controlled failed authentication attempts were generated against the monitored Windows 11 endpoint.
+A controlled series of incorrect SSH password attempts was performed against Thor to generate failed Windows authentication events.
 
-The following KQL query was used to identify the resulting Event ID 4625 telemetry:
+The test produced **six Event ID 4625 records** within approximately seven seconds.
+
+The events were successfully ingested into the Log Analytics workspace.
+
+### Investigation Query
 
 ```kusto
-SecurityEvent
+Event
 | where TimeGenerated > ago(1h)
 | where EventID == 4625
-| project
-    TimeGenerated,
-    Computer,
-    Account,
-    LogonTypeName,
-    IpAddress,
-    WorkstationName,
-    FailureReason
-| order by TimeGenerated asc
+| project TimeGenerated, Computer, EventID, RenderedDescription
+| order by TimeGenerated desc
 ```
 
-The query confirmed that Windows authentication failures were successfully collected and available for investigation.
+This query was used to inspect the collected authentication failures and confirm that the expected events were available for analysis.
 
-![Failed Logon KQL](screenshots/01-failed-logons-kql.png)
+### Evidence — Failed Authentication Events
 
----
+![Failed Windows Logons in Log Analytics](screenshots/01-failed-logons-kql.png)
 
-### 2. Detection and Incident Generation
+**Observed findings:**
 
-The controlled activity produced at least five failed authentication events within the configured 10-minute detection window.
-
-The custom scheduled analytics rule correlated the events and generated the **Repeated Windows Failed Logons** security alert and incident.
-
-The incident was surfaced through the Microsoft Defender portal for analyst investigation.
-
-![Sentinel Detection Incident](screenshots/02-sentinel-detection-incident.png)
-
-This validated the detection path:
-
-**Windows Event → AMA → Log Analytics → Microsoft Sentinel → Analytics Rule → Alert → Incident**
+- Six failed authentication events were recorded.
+- The affected endpoint was Thor.
+- All six records used Windows Security Event ID 4625.
+- The test activity was visible in the Log Analytics `Event` table.
 
 ---
 
-### 3. Authentication Timeline Analysis
+## 5. Detection Engineering
 
-Failed and successful Windows authentication events were correlated to provide additional context around the activity.
+A custom scheduled analytics rule was created in Microsoft Sentinel.
 
-The following query was used:
+### Detection Rule
+
+**Rule name:** Repeated Windows Failed Logons
+
+### KQL Detection Logic
 
 ```kusto
-SecurityEvent
-| where TimeGenerated > ago(2h)
-| where EventID in (4624, 4625)
-| project
-    TimeGenerated,
-    EventID,
-    Activity,
-    Account,
-    Computer,
-    LogonTypeName,
-    IpAddress
-| order by TimeGenerated asc
+Event
+| where TimeGenerated > ago(10m)
+| where EventID == 4625
+| summarize FailedAttempts = count(),
+            FirstAttempt = min(TimeGenerated),
+            LastAttempt = max(TimeGenerated)
+    by Computer
+| where FailedAttempts >= 5
+| project LastAttempt, Computer, FailedAttempts, FirstAttempt
 ```
 
-This allowed Event ID **4625** failed authentication activity to be reviewed alongside Event ID **4624** successful authentication activity.
+### How the Detection Works
 
-![Authentication Timeline](screenshots/03-authentication-timeline.png)
+1. Searches the `Event` table for records from the previous 10 minutes.
+2. Filters Windows Security Event ID 4625.
+3. Groups failed logon events by computer.
+4. Counts failed attempts and records the first and last timestamps.
+5. Returns computers with at least five failed attempts.
 
----
+**Important:** This rule aggregates events by `Computer`, not by username or source IP address. Therefore, it detects a concentration of failed logons on an endpoint but does not independently establish that all attempts targeted the same account or originated from one source.
 
-## Event Analysis
+### Analytics Rule Configuration
 
-| Event ID | Description | Investigation Relevance |
-|---|---|---|
-| **4625** | An account failed to log on | Primary detection event |
-| **4624** | An account was successfully logged on | Used for authentication timeline correlation |
+| Setting | Configuration |
+|---|---|
+| Rule Name | Repeated Windows Failed Logons |
+| Rule Type | Scheduled |
+| Query Frequency | Every 5 minutes |
+| Lookup Period | Last 10 minutes |
+| Trigger Condition | Number of query results greater than 0 |
+| Failed Logon Threshold | 5 |
+| Severity | Medium |
+| Host Entity Type | Host |
+| Host Identifier | HostName |
+| Host Value | Computer |
 
-The repeated Event ID 4625 activity matched the controlled authentication test performed during the investigation.
+### Evidence — Analytics Rule
 
----
+![Microsoft Sentinel Analytics Rule](screenshots/02-analytics-rule.png)
 
-## MITRE ATT&CK Mapping
-
-### T1110 — Brute Force
-
-Repeated authentication attempts are associated with the MITRE ATT&CK **Brute Force** technique.
-
-The activity in this investigation was intentionally generated within the authorised lab environment to validate detection logic. It does not represent an actual brute-force compromise.
-
----
-
-## Findings
-
-- Windows failed authentication events were successfully collected as Event ID 4625.
-- Azure Monitor Agent successfully forwarded endpoint security telemetry.
-- KQL provided visibility into authentication activity.
-- Multiple failed authentication events could be correlated by account and endpoint.
-- The custom Sentinel Analytics Rule detected the configured threshold.
-- Microsoft Sentinel successfully generated an alert and incident.
-- Authentication events were correlated to provide additional investigation context.
-- The observed activity matched the controlled security test.
-- No evidence of unauthorised access or compromise was identified.
+The detection rule was validated using the generated authentication failures.
 
 ---
 
-## Analyst Verdict
+## 6. Alert Investigation
 
-**Classification:** True Positive — Controlled Security Test
+Microsoft Sentinel successfully generated a security alert from the scheduled analytics rule.
 
-**Severity:** Medium
+### Observed Alert Details
 
-**MITRE ATT&CK:** T1110 — Brute Force
+| Field | Observed Value |
+|---|---|
+| Alert Name | Repeated Windows Failed Logons |
+| Severity | Medium |
+| Endpoint | Thor |
+| Failed Attempts | 6 |
+| Detection Source | Scheduled detection |
+| Service Source | Microsoft Sentinel |
+| Category | Credential Access |
+| Alert Generated | 12 October 2026, 02:05:06 AM (portal time) |
 
-**Impact:** No compromise identified.
+The alert's related events contained one aggregated result for Thor, showing six failed attempts and the first and last attempt timestamps.
 
-**Conclusion:** The detection successfully identified the controlled repeated authentication failures and generated an actionable security incident. The end-to-end detection and investigation workflow operated as expected.
+### Evidence — Security Alert
+
+![Repeated Windows Failed Logons Alert](screenshots/03-sentinel-alert.png)
+
+This confirms that the analytics rule progressed beyond a successful KQL query and generated a security alert.
 
 ---
 
-## Skills Demonstrated
+## 7. Incident Investigation
 
-- Microsoft Sentinel
-- KQL
+The generated alerts were associated with an incident in the Microsoft Defender incident management interface.
+
+### Incident Details
+
+| Field | Observed Value |
+|---|---|
+| Incident ID | 31 |
+| Incident Name | Repeated Windows Failed Logons |
+| Severity | Medium |
+| Status | Active |
+| Classification | Unclassified |
+| Affected Asset | Thor |
+| Alerts Displayed | 11 |
+| Detection Source | Microsoft Sentinel |
+| Detection Method | Scheduled detection |
+
+Multiple alerts were displayed under the same incident.
+
+### Evidence — Incident
+
+![Microsoft Defender Incident](screenshots/04-sentinel-incident.png)
+
+The incident was visible in the incident queue with Thor listed as the impacted asset.
+
+---
+
+## 8. Entity Mapping Validation
+
+The analytics rule was configured to map the query's `Computer` field to a Host entity:
+
+**Host → HostName → Computer**
+
+The incident's Assets section displayed Thor as an affected device.
+
+### Evidence — Affected Device
+
+![Incident Assets Showing Thor](screenshots/05-incident-assets.png)
+
+This confirms that the detection was associated with the intended lab endpoint and that the device entity was available during incident investigation.
+
+---
+
+## 9. Investigation Workflow
+
+```mermaid
+flowchart TD
+    A["Authentication Failures<br/>Event ID 4625"]
+    B["Verify Log Ingestion<br/>Log Analytics"]
+    C["Apply Detection KQL<br/>Count Failures by Computer"]
+    D{"Threshold Reached?"}
+    E["No Matching Detection Result"]
+    F["Sentinel Alert Generated"]
+    G["Review Alert Evidence<br/>6 Failed Attempts"]
+    H["Review Incident 31"]
+    I["Validate Asset Mapping<br/>Thor"]
+    J["Record Findings and Verdict"]
+
+    A --> B
+    B --> C
+    C --> D
+    D -->|No| E
+    D -->|Yes| F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+```
+
+---
+
+## 10. MITRE ATT&CK Mapping
+
+| Category | Mapping |
+|---|---|
+| Tactic | Credential Access |
+| Technique | T1110 — Brute Force |
+| Supporting Event | Windows Security Event ID 4625 |
+| Detection Indicator | Repeated failed authentication attempts |
+| Validation | Controlled lab simulation |
+
+**Technique reference:** https://attack.mitre.org/techniques/T1110/
+
+Repeated failed authentication attempts can be consistent with brute-force behaviour.
+
+However, Event ID 4625 alone does not prove a malicious brute-force attack. In this investigation, the activity was deliberately generated for detection testing.
+
+---
+
+## 11. Findings
+
+The investigation established the following:
+
+1. The controlled authentication test generated six failed Windows logon events.
+2. Windows Security Event ID 4625 was successfully collected from Thor.
+3. The Log Analytics `Event` table contained the expected records.
+4. The custom KQL rule detected the failures using a five-event threshold over a 10-minute window.
+5. Microsoft Sentinel generated a Medium-severity security alert.
+6. The alert was associated with an incident displayed as Incident 31.
+7. The incident contained multiple related alerts and identified Thor as an affected device.
+
+### Detection Limitations
+
+The current detection groups authentication failures by endpoint only.
+
+As a result, it cannot independently distinguish:
+
+- Repeated attempts against a single user from attempts against multiple users.
+- One attacking source from multiple independent sources.
+- Malicious brute-force activity from legitimate authentication mistakes.
+
+Further enrichment using account names, source IP addresses, and successful authentication events could improve detection accuracy and investigation context.
+
+---
+
+## 12. Analyst Verdict
+
+**Classification:** Benign Positive — Authorized Security Test
+
+**Detection Outcome:** Successful
+
+The authentication failures were deliberately generated in an isolated lab environment to validate the monitoring pipeline and custom analytics rule.
+
+The expected Windows Security events were ingested, the detection threshold was met, and a Microsoft Sentinel security alert was generated.
+
+The related incident and Thor device entity were also confirmed in the incident management interface.
+
+No unauthorized activity was established by the evidence collected for this test.
+
+---
+
+## 13. Skills Demonstrated
+
+- Microsoft Sentinel detection engineering
+- Kusto Query Language (KQL)
 - Windows Security Event analysis
-- Authentication log analysis
-- Detection engineering
-- Scheduled Analytics Rules
-- Alert triage
-- Incident investigation
-- Event correlation
+- Azure Arc-enabled server monitoring
+- Azure Monitor Agent and Data Collection Rules
+- Log Analytics investigation
+- Scheduled analytics rule configuration
+- Alert triage and incident investigation
+- Entity mapping validation
 - MITRE ATT&CK mapping
-- SOC investigation documentation
+- Security investigation documentation
+
+---
+
+## 14. Evidence Index
+
+| Screenshot | Description |
+|---|---|
+| `01-failed-logons-kql.png` | Event ID 4625 records in Log Analytics |
+| `02-analytics-rule.png` | Scheduled analytics rule and detection configuration |
+| `03-sentinel-alert.png` | Generated alert and six failed attempts |
+| `04-sentinel-incident.png` | Incident 31 in the incident queue |
+| `05-incident-assets.png` | Incident asset mapping showing Thor |
+
+All screenshots were captured from the configured SOC lab environment.
+
+---
+
+## 15. Conclusion
+
+This investigation demonstrates an end-to-end security detection workflow, from generating Windows authentication failures to collecting telemetry, applying a custom KQL detection rule, generating a Microsoft Sentinel alert, and validating the resulting incident.
+
+The successful detection and entity mapping provide evidence of hands-on experience with cloud SIEM operations, Windows event monitoring, and SOC alert investigation.
+
+**Investigation Status: Completed — Detection Validated**
