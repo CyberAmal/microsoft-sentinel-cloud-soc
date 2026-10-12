@@ -258,7 +258,7 @@ Event
 
 ### 04 - Suspicious Account Creation & Privilege Escalation
 
-**MITRE ATT&CK:** `T1136.001 - Create Account: Local Account` | `T1098 — Account Manipulation`
+**MITRE ATT&CK:** `T1136.001 - Create Account: Local Account` | `T1098 - Account Manipulation`
 
 **Event IDs:** `4720`, `4732`
 
