@@ -34,7 +34,7 @@ flowchart TD
         W --> LOG
     end
 
-    subgrap CLOUD["Microsoft Azure"]
+    subgraph CLOUD["Microsoft Azure"]
         ARC["Azure Arc"]
         AMA["Azure Monitor Agent"]
         DCR["Data Collection Rule"]
