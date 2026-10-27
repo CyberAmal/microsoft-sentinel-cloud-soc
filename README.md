@@ -255,7 +255,7 @@ Event
 
 **Verdict:** `True Positive — Controlled Antivirus Test`
 
-[View Investigation](investigations/defender-malware-detection)
+[View Investigation](investigations/03-defender-malware-detection)
 
 ---
 
@@ -306,7 +306,7 @@ Created
 
 **Verdict:** `True Positive - Controlled Security Test`
 
-[View Investigation](investigations/account-privilege-escalation)
+[View Investigation](investigations/04-account-privilege-escalation)
 
 **Detection Note:** The SID extraction method was validated in the lab. Production implementation would require field-specific parsing to ensure accurate account correlation.
 
@@ -343,7 +343,7 @@ Event
 
 **Verdict:** `True Positive - Controlled Security Test`
 
-[View Investigation](investigations/scheduled-task-persistence)
+[View Investigation](investigations/05-scheduled-task-persistence)
 
 ---
 
