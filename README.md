@@ -1,29 +1,23 @@
-# Microsoft Defender EDR & XDR Security Operations Lab
+# Microsoft Sentinel Cloud SOC & Threat Detection Lab
 
-**Microsoft Defender for Endpoint | Microsoft Defender XDR | KQL | Detection Engineering | Incident Response**
+**Microsoft Sentinel | Azure Arc | Azure Monitor Agent | KQL | Detection Engineering | Incident Investigation**
 
-A hands-on cybersecurity project demonstrating endpoint threat detection, security alert investigation, advanced hunting, and incident response using Microsoft Defender for Endpoint P2.
+A hands-on hybrid cloud SOC project demonstrating the collection, analysis, and detection of Windows security threats using Microsoft Sentinel.
 
-The lab uses a Windows 11 endpoint named Thor, hosted on Proxmox VE, and integrated with Microsoft Defender for Endpoint. Controlled security scenarios are used to generate endpoint telemetry, validate custom detection rules, and investigate suspicious activity.
+The lab integrates a Windows 11 endpoint hosted on Proxmox VE with Microsoft Azure using Azure Arc and Azure Monitor Agent (AMA). Windows Security, PowerShell, and Microsoft Defender telemetry is forwarded to Azure Log Analytics, where custom KQL analytics rules detect suspicious activity and generate security incidents.
 
-**Project Status:**
-- Phase 1 - EDR: Five investigations performed; documentation in progress.
-- Phase 2 - XDR: In progress.
-
----
+**Project Status:** Five Security Investigations Completed
 
 ## Project Objectives
 
-- Deploy Microsoft Defender for Endpoint P2.
-- Onboard a Windows 11 endpoint for security monitoring.
-- Investigate endpoint alerts and suspicious processes.
-- Develop and validate custom detection rules.
-- Perform threat hunting using Kusto Query Language (KQL).
-- Analyse PowerShell execution, malware detection, and persistence techniques.
-- Practise endpoint isolation and recovery.
-- Map relevant detections to MITRE ATT&CK.
-- Document investigation findings with supporting evidence.
-- Extend endpoint monitoring into XDR email-security investigations.
+- Deploy Microsoft Sentinel and Azure Log Analytics.
+- Integrate a non-Azure Windows endpoint using Azure Arc.
+- Configure Windows security telemetry collection using Azure Monitor Agent and Data Collection Rules.
+- Develop custom KQL threat detection queries.
+- Simulate security activity in an authorised lab.
+- Validate automatic security alert and incident generation.
+- Investigate Windows authentication, PowerShell, malware, account privilege, and persistence activity.
+- Apply MITRE ATT&CK mappings to relevant detections.
 
 ---
 
@@ -31,37 +25,36 @@ The lab uses a Windows 11 endpoint named Thor, hosted on Proxmox VE, and integra
 
 ```mermaid
 flowchart TD
-    subgraph LAB["On-Premises Lab"]
+    subgraph HOME["On-Premises Lab"]
         P["Proxmox VE"]
-        W["Windows 11 VM - THOR"]
+        W["Thor - Windows 11 VM"]
+        LOG["Windows Security Events<br/>PowerShell Script Logs<br/>Microsoft Defender Events"]
         P --> W
+        W --> LOG
     end
 
-    subgraph EDR["Microsoft Defender for Endpoint P2"]
-        SENSOR["Endpoint Sensor"]
-        TELEMETRY["Process and Security Telemetry"]
-        DETECTION["Custom Detection Rules"]
+    subgraph CLOUD["Microsoft Azure"]
+        ARC["Azure Arc"]
+        AMA["Azure Monitor Agent"]
+        DCR["Data Collection Rule"]
+        LAW["Log Analytics Workspace"]
+        SENT["Microsoft Sentinel"]
+        RULE["Scheduled KQL Analytics Rules"]
         ALERT["Security Alerts"]
+        INC["Security Incidents"]
+        INV["SOC Investigation"]
     end
 
-    subgraph SOC["Microsoft Defender XDR Portal"]
-        HUNT["Advanced Hunting - KQL"]
-        TRIAGE["SOC Alert Triage"]
-        PROCESS["Process Tree Analysis"]
-        RESPONSE["Endpoint Isolation and Release"]
-        REPORT["Investigation Reports"]
-    end
-
-    W --> SENSOR
-    SENSOR --> TELEMETRY
-    TELEMETRY --> HUNT
-    HUNT --> DETECTION
-    DETECTION --> ALERT
-    ALERT --> TRIAGE
-    TRIAGE --> PROCESS
-    TRIAGE --> RESPONSE
-    PROCESS --> REPORT
-    RESPONSE --> REPORT
+    W --> ARC
+    ARC --> AMA
+    LOG --> AMA
+    DCR -. "Collection Configuration" .-> AMA
+    AMA --> LAW
+    LAW --> SENT
+    SENT --> RULE
+    RULE --> ALERT
+    ALERT --> INC
+    INC --> INV
 ```
 
 ### Technology Stack
@@ -69,35 +62,43 @@ flowchart TD
 | Technology | Purpose |
 |---|---|
 | Proxmox VE | Hosts the Windows 11 virtual machine |
-| Windows 11 – Thor | Monitored endpoint |
-| Microsoft Defender for Endpoint P2 | Endpoint detection and response |
-| Microsoft Defender XDR | Security monitoring and investigation portal |
-| Advanced Hunting | Endpoint telemetry investigation |
-| Kusto Query Language | Threat hunting and detection queries |
-| Custom Detection Rules | Detect suspicious endpoint behaviour |
-| Process Tree Analysis | Investigate process execution relationships |
-| Device Action Center | Review response actions |
-| MITRE ATT&CK | Threat technique classification |
+| Windows 11 - Thor | Monitored endpoint |
+| Azure Arc | Connects the non-Azure endpoint to Azure |
+| Azure Monitor Agent | Collects Windows event telemetry |
+| Data Collection Rules | Defines collected event logs |
+| Azure Log Analytics | Centralised log storage and querying |
+| Microsoft Sentinel | SIEM, detection, and incident management |
+| KQL | Security analysis and detection logic |
+| Microsoft Defender | Endpoint malware detection |
+| MITRE ATT&CK | Threat technique mapping |
+
+### Azure Configuration
+
+| Resource | Configuration |
+|---|---|
+| Resource Group | `rg-sentinel-soc-lab` |
+| Log Analytics Workspace | `law-sentinel-soc-lab` |
+| Data Collection Rule | `dcr-thor-security-monitoring` |
+| Region | UK South |
+| Endpoint | Thor |
+| Endpoint IP | `192.168.20.30` |
 
 ---
 
-## SOC Investigation Workflow
+## SOC Detection Workflow
 
 ```mermaid
-flowchart TD
+flowchart LR
     A["Controlled Security Test"]
-    B["Endpoint Activity Generated"]
-    C["Defender Endpoint Sensor"]
-    D["Endpoint Telemetry"]
-    E["Advanced Hunting - KQL"]
-    F{"Detection Condition Matched?"}
-    G["Custom Detection Alert"]
-    H["SOC Alert Investigation"]
-    I["Process and Command-Line Analysis"]
-    J{"Containment Required?"}
-    K["Endpoint Isolation"]
-    L["Document Findings"]
-    M["GitHub Investigation Report"]
+    B["Windows Event Generated"]
+    C["Azure Monitor Agent"]
+    D["Log Analytics"]
+    E["KQL Analytics Rule"]
+    F{"Detection Matched?"}
+    G["Security Alert"]
+    H["Sentinel Incident"]
+    I["Host Entity Mapping"]
+    J["Investigation"]
 
     A --> B
     B --> C
@@ -105,214 +106,236 @@ flowchart TD
     D --> E
     E --> F
     F -->|Yes| G
-    F -->|No| E
+    F -->|No| D
     G --> H
     H --> I
     I --> J
-    J -->|Yes| K
-    J -->|No| L
-    K --> L
-    L --> M
 ```
 
-The workflow represents the investigation process practised in the lab. Endpoint isolation was tested separately as an incident response exercise and was not required for every detection.
+Security events are generated on Thor, collected through AMA, and stored in Log Analytics. Scheduled analytics rules evaluate the telemetry and generate alerts when their detection conditions are met.
+
+Incident creation and Host entity mapping were validated for all five investigations.
 
 ---
 
 ## Implementation
 
-### 1. Windows 11 Endpoint
+### 1. Azure Log Analytics
 
-Deployed a Windows 11 virtual machine named **Thor** using Proxmox VE.
+Deployed a dedicated Log Analytics workspace in UK South for centralised security telemetry collection.
 
-The endpoint was used to simulate suspicious processes, malware detection, scheduled task creation, and other controlled security activities.
+Configured data ingestion limits to control cloud resource consumption during lab testing.
 
-### 2. Microsoft Defender for Endpoint P2
+### 2. Microsoft Sentinel
 
-Configured Microsoft Defender for Endpoint P2 and onboarded Thor for endpoint monitoring.
+Enabled Microsoft Sentinel on the Log Analytics workspace for security monitoring, KQL analysis, scheduled analytics rules, alert generation, and incident investigation.
 
-Validated that the device appeared in the Microsoft Defender security portal and generated endpoint telemetry.
+### 3. Azure Arc
 
-### 3. Advanced Hunting
+Onboarded the Proxmox-hosted Windows 11 endpoint, Thor, as an Azure Arc-enabled machine.
 
-Used Advanced Hunting to investigate endpoint activity using KQL.
+### 4. Azure Monitor Agent
 
-Relevant telemetry included process execution events, command-line arguments, initiating processes, and security detection information.
+Deployed Azure Monitor Agent to collect Windows Security, PowerShell, and Microsoft Defender telemetry.
 
-### 4. Custom Detection Rules
+### 5. Data Collection Rule
 
-Configured custom detection rules to identify suspicious endpoint activity.
+Configured `dcr-thor-security-monitoring` to forward the required Windows event logs to Log Analytics.
 
-The lab included detections for encoded PowerShell execution, suspicious scheduled task creation, and PowerShell launching Command Prompt.
-
-### 5. Incident Response
-
-Practised endpoint isolation and release through Microsoft Defender for Endpoint.
-
-This exercise focused on understanding endpoint containment and restoring connectivity after investigation.
+The collection configuration was updated during testing to include scheduled task creation Event ID `4698`.
 
 ---
 
-## EDR Investigations
+## SOC Investigations
 
-Five controlled endpoint security investigations were performed.
+Five controlled security scenarios were executed against the monitored Windows endpoint.
 
-| # | Investigation | Result |
-|---|---|---|
-| 01 | [Encoded PowerShell Execution](EDR/EDR-001-Encoded-PowerShell/README.md) | Detected |
-| 02 | [EICAR Malware Detection](EDR/EDR-002-EICAR-Malware/README.md) | Prevented |
-| 03 | [Suspicious Scheduled Task Creation](EDR/EDR-003-Scheduled-Task-Persistence/README.md) | Detected |
-| 04 | [PowerShell Launched CMD](EDR/EDR-004-Suspicious-Process-Execution/README.md) | Investigated |
-| 05 | [Endpoint Isolation and Release](EDR/EDR-005-Endpoint-Isolation/README.md) | Tested |
+Each investigation involved event generation, log validation, KQL detection development, analytics rule configuration, and automatic incident validation.
 
-*Individual investigation reports and supporting screenshots are being uploaded.*
+| # | Investigation | Event IDs | Result |
+|---|---|---|---|
+| 01 | Repeated Windows Failed Logons | 4625 | Detected |
+| 02 | Suspicious PowerShell Activity | 4104 | Detected |
+| 03 | Microsoft Defender Malware Detection | 1116, 1117 | Detected |
+| 04 | Account Creation & Privilege Escalation | 4720, 4732 | Detected |
+| 05 | Suspicious Scheduled Task Persistence | 4698 | Detected |
 
----
+### 01 - Repeated Windows Failed Logons
 
-### 01 - Encoded PowerShell Execution
+**MITRE ATT&CK:** `T1110 — Brute Force`
 
-**MITRE ATT&CK:** `T1059.001 – PowerShell`
+**Event ID:** `4625`
 
-**Detection Type:** Custom Detection Rule
+Controlled repeated SSH authentication failures were generated against the Windows 11 endpoint.
 
-**Severity:** Low
+Failed authentication events were collected through Azure Monitor Agent and analysed using KQL.
 
-Executed a controlled PowerShell command using the `-EncodedCommand` parameter to simulate suspicious script execution.
+A custom Microsoft Sentinel scheduled analytics rule detected five or more failed authentication attempts within a ten-minute window.
 
-Microsoft Defender for Endpoint recorded the process activity and generated a custom detection alert.
+The detection successfully generated an alert and incident, with Thor identified as the affected endpoint.
 
-The investigation included:
-
-- Reviewing the generated security alert.
-- Examining the PowerShell process execution chain.
-- Analysing command-line arguments.
-- Reviewing process metadata.
-- Validating the custom detection rule.
-- Investigating endpoint telemetry using Advanced Hunting.
-
-**Detection Evidence:**
-
-| Field | Finding |
-|---|---|
-| Endpoint | Thor |
-| Process | powershell.exe |
-| Suspicious Parameter | -EncodedCommand |
-| Detection | Encoded PowerShell Execution Detected |
-| Severity | Low |
-| MITRE ATT&CK | T1059.001 |
-| Detection Source | Custom Detection Rule |
-
-**Advanced Hunting Query:**
+**Detection Query:**
 
 ```kusto
-DeviceProcessEvents
-| where Timestamp > ago(30d)
-| where DeviceName =~ "thor"
-| where FileName =~ "powershell.exe"
-| where ProcessCommandLine contains "-EncodedCommand"
-| project
-    Timestamp,
-    DeviceName,
-    AccountName,
-    FileName,
-    ProcessCommandLine,
-    InitiatingProcessFileName,
-    ProcessId
-| order by Timestamp desc
+Event
+| where TimeGenerated > ago(10m)
+| where EventID == 4625
+| summarize
+    FailedAttempts = count(),
+    FirstAttempt = min(TimeGenerated),
+    LastAttempt = max(TimeGenerated)
+    by Computer
+| where FailedAttempts >= 5
+| project LastAttempt, Computer, FailedAttempts, FirstAttempt
 ```
 
-**Finding:**
+**Verdict:** `True Positive - Controlled Security Test`
 
-Microsoft Defender successfully identified the controlled encoded PowerShell execution and generated a low-severity alert.
-
-The presence of `-EncodedCommand` is a suspicious indicator requiring investigation, but it does not independently establish malicious activity.
-
-**Verdict:** True Positive – Controlled Security Test
-
-[View Full Investigation](EDR/EDR-001-Encoded-PowerShell/README.md)
+[View Investigation](investigations/01-windows-failed-logons)
 
 ---
 
-### 02 - EICAR Malware Detection
+### 02 - Suspicious PowerShell Activity
 
-Used the harmless EICAR antivirus test file to validate Microsoft Defender malware detection and prevention.
+**MITRE ATT&CK:** `T1059.001 - PowerShell`
 
-Microsoft Defender identified the test file and generated a malware prevention alert.
+**Event ID:** `4104`
 
-The investigation focused on:
+Executed a harmless PowerShell Base64 decoding command to simulate suspicious script execution.
 
-- Malware detection.
-- Security alert analysis.
-- Endpoint protection behaviour.
-- Detection and prevention evidence.
+PowerShell Script Block Logging captured the activity, and the telemetry was successfully forwarded to Azure Log Analytics.
 
-**Verdict:** True Positive – Controlled Antivirus Test
+A custom KQL detection rule identified suspicious PowerShell command patterns and generated a Microsoft Sentinel incident.
 
-[View Full Investigation](EDR/EDR-002-EICAR-Malware/README.md)
+Thor was confirmed under incident Assets.
 
----
+**Detection Query:**
 
-### 03 - Suspicious Scheduled Task Creation
+```kusto
+Event
+| where EventID == 4104
+| where RenderedDescription has_any (
+    "EncodedCommand",
+    "FromBase64String",
+    "DownloadString",
+    "Invoke-Expression",
+    "IEX"
+)
+| project TimeGenerated, Computer, EventID, RenderedDescription
+```
 
-**MITRE ATT&CK:** `T1053.005 – Scheduled Task`
-
-Created a controlled scheduled task to simulate a Windows persistence technique.
-
-A custom detection rule identified suspicious scheduled task creation.
-
-The investigation focused on:
-
-- Scheduled task creation activity.
-- Endpoint telemetry.
-- Custom detection validation.
-- Persistence technique analysis.
-
-**Verdict:** True Positive – Controlled Security Test
-
-[View Full Investigation](EDR/EDR-003-Scheduled-Task-Persistence/README.md)
+**Verdict:** `True Positive - Controlled Security Test`
 
 ---
 
-### 04 - Suspicious Process Execution
+### 03 - Microsoft Defender Malware Detection
 
-**MITRE ATT&CK:** `T1059 – Command and Scripting Interpreter`
+**Event IDs:** `1116`, `1117`
 
-Investigated PowerShell launching `cmd.exe` on the Windows 11 endpoint.
+Used the harmless EICAR antivirus test file to validate Microsoft Defender detection and remediation monitoring.
 
-The exercise focused on identifying suspicious parent-child process relationships and understanding how endpoint telemetry supports process investigations.
+Microsoft Defender generated security events for the test file, which were collected through Azure Monitor Agent and forwarded to Log Analytics.
 
-A custom detection rule was configured for the activity.
+A custom Sentinel analytics rule successfully generated an incident associated with Thor.
 
-The investigation included:
+**Detection Query:**
 
-- PowerShell process analysis.
-- Command Prompt execution.
-- Parent-child process relationships.
-- Custom detection rule review.
+```kusto
+Event
+| where EventID in (1116, 1117)
+| project
+    TimeGenerated,
+    Computer,
+    EventID,
+    RenderedDescription
+| order by TimeGenerated desc
+```
 
-**Verdict:** Controlled Security Test – Investigation Performed
-
-[View Full Investigation](EDR/EDR-004-Suspicious-Process-Execution/README.md)
+**Verdict:** `True Positive — Controlled Antivirus Test`
 
 ---
 
-### 05 - Endpoint Isolation and Release
+### 04 - Suspicious Account Creation & Privilege Escalation
 
-Practised endpoint containment and recovery using Microsoft Defender for Endpoint.
+**MITRE ATT&CK:** `T1136.001 - Create Account: Local Account` | `T1098 - Account Manipulation`
 
-The Windows 11 lab device was isolated and subsequently released from isolation.
+**Event IDs:** `4720`, `4732`
 
-The exercise focused on:
+Created a temporary local Windows account named `SOC-TestUser` and added it to the local Administrators group.
 
-- Endpoint containment.
-- Device isolation.
-- Incident response actions.
-- Restoring endpoint connectivity.
-- Reviewing response activity.
+Windows recorded the account creation and group membership modification events.
 
-**Result:** Endpoint Isolation and Release Tested
+A SID-based KQL correlation query was developed to link the two events within a 15-minute window.
 
-[View Full Investigation](EDR/EDR-005-Endpoint-Isolation/README.md)
+The analytics rule successfully detected the activity and generated a Microsoft Sentinel incident.
+
+The account's Administrators group membership was removed after testing.
+
+**Detection Query:**
+
+```kusto
+let Created =
+    Event
+    | where TimeGenerated > ago(30m)
+    | where EventID == 4720
+    | extend AccountSID = extract(@"S-1-5-21-\d+-\d+-\d+-\d+", 0, RenderedDescription)
+    | where isnotempty(AccountSID)
+    | project Computer, AccountSID, CreationTime = TimeGenerated;
+let Promoted =
+    Event
+    | where TimeGenerated > ago(30m)
+    | where EventID == 4732
+    | where RenderedDescription contains "Administrators"
+    | extend AccountSID = extract(@"S-1-5-21-\d+-\d+-\d+-\d+", 0, RenderedDescription)
+    | where isnotempty(AccountSID)
+    | project Computer, AccountSID, PromotionTime = TimeGenerated;
+Created
+| join kind=inner Promoted on Computer, AccountSID
+| where PromotionTime between (CreationTime .. CreationTime + 15m)
+| project
+    TimeGenerated = PromotionTime,
+    Computer,
+    AccountSID,
+    CreationTime,
+    PromotionTime
+```
+
+**Verdict:** `True Positive - Controlled Security Test`
+
+**Detection Note:** The SID extraction method was validated in the lab. Production implementation would require field-specific parsing to ensure accurate account correlation.
+
+---
+
+### 05 - Suspicious Scheduled Task Persistence
+
+**MITRE ATT&CK:** `T1053.005 - Scheduled Task`
+
+**Event ID:** `4698`
+
+Created harmless Windows scheduled tasks configured to execute PowerShell commands.
+
+Enabled Windows auditing for scheduled task creation and updated the Azure Data Collection Rule to include Event ID `4698`.
+
+After validating successful ingestion into Log Analytics, a custom KQL analytics rule was developed to detect PowerShell-related scheduled task creation.
+
+The rule successfully generated a Microsoft Sentinel incident, with Thor identified as the affected endpoint.
+
+**Detection Query:**
+
+```kusto
+Event
+| where EventID == 4698
+| where RenderedDescription has "powershell.exe"
+    or RenderedDescription has "SOC-Lab"
+    or RenderedDescription has "SOC-Sentinel"
+| project
+    TimeGenerated,
+    Computer,
+    EventID,
+    RenderedDescription
+```
+
+**Verdict:** `True Positive - Controlled Security Test`
 
 ---
 
@@ -320,35 +343,35 @@ The exercise focused on:
 
 | Investigation | Technique ID | Technique |
 |---|---|---|
-| Encoded PowerShell Execution | T1059.001 | PowerShell |
-| Suspicious Scheduled Task Creation | T1053.005 | Scheduled Task |
-| PowerShell Launched CMD | T1059 | Command and Scripting Interpreter |
+| Repeated Failed Logons | T1110 | Brute Force |
+| Suspicious PowerShell | T1059.001 | PowerShell |
+| Account Creation | T1136.001 | Create Account: Local Account |
+| Privilege-related Account Modification | T1098 | Account Manipulation |
+| Scheduled Task Persistence | T1053.005 | Scheduled Task |
 
-The EICAR investigation focused on antivirus detection rather than demonstrating a specific adversary technique.
-
-Endpoint isolation and release were defensive response activities rather than adversary techniques.
+The Microsoft Defender EICAR investigation focused on antivirus detection and remediation telemetry rather than demonstrating a specific adversary technique.
 
 ---
 
 ## Challenges & Troubleshooting
 
-### Custom Detection Validation
+### Missing Scheduled Task Events
 
-Creating a custom detection rule is not sufficient to confirm that the detection works.
+Event ID `4698` was initially unavailable in Log Analytics.
 
-The rule must be enabled, matching telemetry must be available, and alert generation must be verified.
+Verified Windows auditing, enabled the required audit policy, updated the Data Collection Rule, and generated fresh test events to confirm successful ingestion.
 
-### Process Investigation
+### Account Event Correlation
 
-Suspicious command-line arguments must be investigated alongside process ancestry, execution context, and supporting telemetry.
+Initial username-based correlation between Events `4720` and `4732` did not return matching results.
 
-An encoded PowerShell command does not automatically mean an endpoint has been compromised.
+Examined the event descriptions and used account SIDs to correlate account creation and Administrators group membership changes.
 
-### Endpoint Response
+### Sentinel Analytics Rule Not Generating an Incident
 
-Endpoint isolation affects device connectivity and should be performed carefully.
+The scheduled task query returned matching events, but the analytics rule did not initially generate an incident.
 
-The lab provided an opportunity to practise both containment and recovery in a controlled environment.
+Verified rule configuration, query scheduling, detection conditions, and event ingestion. Revised the query and confirmed successful incident generation.
 
 ---
 
@@ -357,98 +380,54 @@ The lab provided an opportunity to practise both containment and recovery in a c
 | Metric | Result |
 |---|---|
 | Monitored Windows Endpoints | 1 |
-| EDR Investigations Performed | 5 |
-| EDR Platform | Microsoft Defender for Endpoint P2 |
-| Security Investigation Portal | Microsoft Defender XDR |
-| Threat Hunting Language | KQL |
-| Custom Detection Rules | Configured and tested |
-| Process Investigation | Performed |
-| Endpoint Isolation and Release | Tested |
-| GitHub Investigation Documentation | In Progress |
-
----
-
-## Phase 2 – XDR Investigations
-
-**Status: Work in Progress**
-
-The second phase extends the lab into email security and cross-domain investigations using Microsoft Defender for Office 365 and Microsoft Defender XDR.
-
-The lab includes Exchange Online and Defender for Office 365 configuration.
-
-| # | Investigation | Status |
-|---|---|---|
-| 01 | Phishing Email Detection and Quarantine | Tested – documentation pending |
-| 02 | Credential Harvesting Simulation | In Progress |
-| 03 | Malicious Email Attachment Detection | Planned |
-| 04 | Suspicious URL and Safe Links Investigation | Planned |
-| 05 | Email-to-Endpoint Correlation | Planned |
-
-### XDR-001 – Phishing Email Detection
-
-Sent a simulated phishing email to a controlled lab mailbox.
-
-Microsoft Defender classified the email as phishing and quarantined it.
-
-The investigation included reviewing the email threat verdict, detection technology, extracted URLs, and quarantine evidence.
-
-A separate XDR security incident was not confirmed during this test.
-
-### XDR-002 – Credential Harvesting Simulation
-
-Configured Microsoft Defender Attack Simulation Training to simulate a credential-harvesting phishing scenario.
-
-Simulation delivery and investigation evidence are still being validated.
-
-### Planned XDR Investigations
-
-The remaining investigations will focus on attachment detection, suspicious URLs, Safe Links, and cross-domain email-to-endpoint security analysis.
-
-The XDR architecture and detailed investigation reports will be added after the relevant tests have been completed and validated.
-
----
+| Completed Security Investigations | 5 |
+| Validated Detection Scenarios | 5 |
+| Automatic Incident Generation | Successful for all five scenarios |
+| Host Entity Mapping | Thor confirmed |
+| SIEM | Microsoft Sentinel |
+| Log Collection | Azure Monitor Agent |
+| Detection Language | KQL |
 
 ## Key Findings
 
-1. **Endpoint Visibility:** Microsoft Defender for Endpoint provides process and security telemetry for investigating suspicious endpoint activity.
+1. **Telemetry Collection:** Windows audit policies and Data Collection Rules must be correctly configured before security events can be analysed.
 
-2. **Detection Engineering:** Custom detection rules can identify suspicious behaviours when the required telemetry and detection conditions are present.
+2. **Detection Engineering:** KQL enables individual security events to be filtered, correlated, and converted into actionable detections.
 
-3. **Threat Hunting:** KQL helps analysts investigate process execution, command-line arguments, and endpoint activity.
+3. **Incident Validation:** Successful query execution alone does not confirm that an analytics rule generates alerts or incidents.
 
-4. **Investigation Context:** A detection alert should be analysed alongside process relationships and supporting evidence before reaching a conclusion.
+4. **Event Correlation:** Account SIDs can provide more reliable event correlation than usernames in certain Windows security events.
 
-5. **Incident Response:** Endpoint isolation and release provide practical experience with containment and recovery actions.
+5. **Hybrid Security Monitoring:** Azure Arc and Azure Monitor Agent enable non-Azure endpoints to participate in cloud-based SOC monitoring.
 
 ---
 
 ## Skills Demonstrated
 
-- Microsoft Defender for Endpoint P2
-- Endpoint Detection and Response
-- Microsoft Defender XDR Portal
-- Advanced Hunting with KQL
-- Custom Detection Engineering
-- Security Alert Triage
-- Process Tree Analysis
-- PowerShell Investigation
-- Malware Detection and Prevention
-- Windows Scheduled Task Analysis
-- Endpoint Isolation and Recovery
-- MITRE ATT&CK Mapping
-- Security Investigation Documentation
+- Microsoft Sentinel SIEM operations
+- Kusto Query Language (KQL)
+- Custom analytics rule development
+- Windows Security Event analysis
+- Azure Arc and Azure Monitor Agent configuration
+- Data Collection Rule management
+- PowerShell Script Block Logging
+- Microsoft Defender telemetry analysis
+- Windows account and privilege event correlation
+- MITRE ATT&CK mapping
+- Alert validation and incident investigation
+- Security monitoring troubleshooting
 
 ---
 
 ## Conclusion
 
-Implemented a Microsoft Defender for Endpoint lab using a Proxmox-hosted Windows 11 endpoint.
+Successfully implemented a hybrid Microsoft Sentinel SOC environment integrating a Proxmox-hosted Windows 11 endpoint with Microsoft Azure.
 
-Performed five EDR investigations covering encoded PowerShell execution, malware prevention, scheduled task persistence, suspicious process execution, and endpoint containment.
+Completed five hands-on security investigations covering authentication failures, suspicious PowerShell execution, malware detection, account privilege changes, and scheduled task persistence.
 
-The project demonstrates practical experience in endpoint security monitoring, custom detection engineering, threat hunting, alert investigation, and incident response.
+Validated the complete monitoring workflow from Windows event generation and cloud telemetry collection to KQL detection, automatic incident creation, and affected-host identification.
 
-The XDR phase is currently being developed to extend these capabilities into email security and cross-domain investigations.
+This project demonstrates practical skills in cloud SIEM operations, detection engineering, Windows security monitoring, and SOC investigation workflows.
 
 ---
 
