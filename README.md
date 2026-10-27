@@ -226,6 +226,8 @@ Event
 
 **Verdict:** `True Positive - Controlled Security Test`
 
+[View Investigation](investigations/02-suspicious-powershell)
+
 ---
 
 ### 03 - Microsoft Defender Malware Detection
@@ -252,6 +254,8 @@ Event
 ```
 
 **Verdict:** `True Positive — Controlled Antivirus Test`
+
+[View Investigation](investigations/defender-malware-detection)
 
 ---
 
@@ -302,6 +306,8 @@ Created
 
 **Verdict:** `True Positive - Controlled Security Test`
 
+[View Investigation](investigations/account-privilege-escalation)
+
 **Detection Note:** The SID extraction method was validated in the lab. Production implementation would require field-specific parsing to ensure accurate account correlation.
 
 ---
@@ -336,6 +342,8 @@ Event
 ```
 
 **Verdict:** `True Positive - Controlled Security Test`
+
+[View Investigation](investigations/scheduled-task-persistence)
 
 ---
 
